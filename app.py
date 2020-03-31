@@ -1,12 +1,18 @@
-from flask import Flask, jsonify, request, render_template, redirect
+from flask import Flask, jsonify, request, \
+    render_template, redirect, session
+
+from flask_bcrypt import Bcrypt
 from models import db, connect_db, User
+from forms import RegUserForm
 
 app = Flask(__name__)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///feedback'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = True
-app.config['SECRECT_KEY'] = 'AGRTjgnb;iorbvn;aevnoear'
+app.config['SECRET_KEY'] = 'AGRTjgnb;iorbvn;aevnoear'
+
+bcrypt = Bcrypt()
 
 connect_db(app)
 db.create_all()
@@ -25,10 +31,26 @@ def registration():
     form = RegUserForm()
     if form.validate_on_submit():
         data = {k: v for k, v in form.data.items() if k != "csrf_token"}
+        
+        print(data)
+        #eventually move this to User class
+        data['password'] = bcrypt.generate_password_hash(data['password'])
 
         new_user = User(**data)
+        db.session.add(new_user)
+        db.session.commit()
 
-        
+        session['username'] = new_user.username
+
+        return redirect('/secret')
+    
+    return render_template('registration.html', form=form)
+
+
+
+
+
+
 
 
 
