@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block title %}Secret Page!{% endblock %}
+
+{% block content %}
+    <h1>{{user.username}}</h1>
+    <h3>{{user.first_name}} {{user.last_name}}</h3>
+    <h3>{{user.email}}</h3>
+    <a href="/users/{{user.username}}/feedback/add">Add Feedback</a>
+    <form action="/users/{{user.username}}/delete" method="POST">
+        <button>DELETE USER</button>
+    </form>
+    <h2>My Feedback</h2>
+    {% for f in user.feedback %}
+    <div class="feedback">
+        <h3>{{f.title}}</h3>
+        <p>{{f.content}}</p>
+        <a href="\feedback\{{f.id}}\update">UPDATE</a>
+        <form action="\feedback\{{f.id}}\delete" method="POST">
+            <button>Delete</button>
+        </form>
+    </div>
+    {% endfor %}
+{% endblock %}
